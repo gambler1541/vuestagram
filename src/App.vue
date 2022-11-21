@@ -4,15 +4,16 @@
         <li>Cancel</li>
       </ul>
       <ul class="header-button-right">
-        <li>Next</li>
+        <li @click="nextStep" v-if="this.step == 1">Next</li>
+        <li @click="publish" v-if="this.step == 2">발행</li>
       </ul>
       <img src="./assets/logo.png" class="logo" />
   </div>
-  <container-view :data="data" :step="step"></container-view>
+  <container-view :data="data" :imgUrl="imgUrl" :step="step" @write="this.myPostContent = $event"></container-view>
   <button @click="more">더보기</button>
   <div class="footer">
     <ul class="footer-button-plus">
-      <input type="file" id="file" class="inputfile" />
+      <input @change="upload" type="file" id="file" class="inputfile" />
       <label for="file" class="input-plus">+</label>
     </ul>
   </div>
@@ -34,8 +35,10 @@ export default {
   data() {
     return {
       data : data,
+      imgUrl : '',
       page : 0,
       step : 0,
+      myPostContent : '',
     }
   },
   components: {
@@ -49,6 +52,28 @@ export default {
           this.page += 1;
         })
         .catch(e => console.log(e));
+    },
+    upload(e) {
+      let file = e.target.files;
+      this.imgUrl = URL.createObjectURL(file[0]);
+      this.step = 1;
+    },
+    nextStep() {
+      this.step += 1;
+    },
+    publish() {
+      let myPost = {
+        name: 'park',
+        userImage: 'https://placeimg.com/100/100/arch',
+        postImage: this.imgUrl,
+        likes: 0,
+        date: 'May 15',
+        liked: false,
+        content: this.myPostContent,
+        filter: 'perpetua'
+      };
+      this.data.unshift(myPost);
+      this.step = 0;   
     }
   }
 }
